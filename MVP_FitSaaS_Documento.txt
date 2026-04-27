@@ -1,0 +1,358 @@
+================================================================================
+                     FITSAAS — DOCUMENTO DE MVP
+              Sistema Inteligente de Monitoramento de Performance
+                         para Praticantes de Musculação
+================================================================================
+Data: Abril de 2026
+Versão: 1.0 — MVP
+
+
+════════════════════════════════════════════════════════════════════════════════
+1. VISÃO GERAL DO PRODUTO
+════════════════════════════════════════════════════════════════════════════════
+
+O FitSaaS é uma plataforma SaaS voltada para academias e praticantes
+intermediários de musculação. O diferencial do produto é a combinação de
+inteligência artificial com uma experiência simples e acessível, permitindo
+que cada aluno receba um plano de treino personalizado com base nas suas
+medidas corporais reais — sem depender exclusivamente da disponibilidade
+de um personal trainer.
+
+Além disso, o sistema conta com um Chatbot de orientação nutricional que
+auxilia o aluno na montagem de uma dieta básica alinhada aos seus objetivos,
+sempre reforçando a importância de consultar um profissional especializado.
+
+Público-alvo principal: Praticantes intermediários de musculação (6 meses
+a 3 anos de treino) que buscam mais autonomia e personalização no seu
+desenvolvimento físico.
+
+Público-alvo secundário: Academias e personal trainers que queiram oferecer
+uma ferramenta digital de acompanhamento para seus alunos.
+
+
+════════════════════════════════════════════════════════════════════════════════
+2. PROBLEMA QUE O PRODUTO RESOLVE
+════════════════════════════════════════════════════════════════════════════════
+
+Hoje, a maioria dos praticantes intermediários de musculação enfrenta um ou
+mais dos seguintes problemas:
+
+  - Fichas de treino genéricas, que não levam em conta as características
+    físicas individuais do aluno.
+
+  - Dificuldade de acesso a personal trainers qualificados (custo elevado
+    ou falta de disponibilidade).
+
+  - Falta de clareza sobre qual grupo muscular priorizar em cada fase do
+    treino, levando a estagnação ou desequilíbrio muscular.
+
+  - Ausência de acompanhamento nutricional básico, que é essencial para
+    qualquer resultado consistente na musculação.
+
+O FitSaaS resolve esses problemas colocando tecnologia de Machine Learning
+e Inteligência Artificial na mão do aluno, de forma acessível e integrada
+ao dia a dia da academia.
+
+
+════════════════════════════════════════════════════════════════════════════════
+3. FUNCIONALIDADES DO MVP
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+3.1 MÓDULO DE MEDIDAS CORPORAIS
+────────────────────────────────────────────────────────────────────────────────
+
+O aluno insere suas medidas diretamente no aplicativo. Os dados coletados são:
+
+  Dados Básicos:
+    - Peso atual (kg)
+    - Altura (cm)
+    - Idade
+    - Sexo biológico
+    - Objetivo principal (Hipertrofia / Força / Resistência / Definição)
+    - Nível de experiência (Iniciante / Intermediário / Avançado)
+
+  Medidas Corporais (circunferências em cm):
+    - Peito
+    - Cintura
+    - Quadril
+    - Braço direito (relaxado e contraído)
+    - Antebraço
+    - Coxa
+    - Panturrilha
+
+  Dados Opcionais:
+    - Percentual de gordura corporal (se disponível via bioimpedância)
+    - Frequência semanal de treino disponível (dias por semana)
+    - Histórico de lesões ou restrições físicas
+
+Essas medidas são armazenadas com data de registro, permitindo o
+acompanhamento da evolução corporal ao longo do tempo.
+
+────────────────────────────────────────────────────────────────────────────────
+3.2 MÓDULO DE RECOMENDAÇÃO POR MACHINE LEARNING
+────────────────────────────────────────────────────────────────────────────────
+
+Com base nas medidas inseridas pelo aluno, um modelo de Machine Learning
+pré-treinado com dados reais de praticantes de musculação realiza a análise
+e retorna:
+
+  a) Grupo Muscular Prioritário:
+     O modelo identifica qual grupo muscular está mais subdesenvolvido ou
+     merece prioridade de acordo com o perfil físico do aluno. Exemplos de
+     saída: "Priorize Posterior de Coxa", "Foco em Dorsais", "Trabalhe
+     mais Ombros e Trapézio".
+
+  b) Geração Automática da Ficha de Treino:
+     Com base no grupo prioritário, no objetivo e na frequência disponível,
+     o sistema gera automaticamente uma ficha de treino personalizada,
+     contendo:
+       - Nome e divisão do treino (ex: Treino A, B, C)
+       - Exercícios recomendados por dia
+       - Número de séries e repetições
+       - Tempo de descanso sugerido
+       - Observações específicas para o perfil do aluno
+
+  Como o modelo funciona:
+     O modelo é treinado offline com uma base de dados de praticantes de
+     musculação (medidas corporais + treinos + progressão). Após treinado,
+     ele é exportado e integrado ao backend via API. O frontend envia as
+     medidas do aluno e recebe de volta as recomendações em tempo real.
+
+────────────────────────────────────────────────────────────────────────────────
+3.3 MÓDULO DE CHATBOT DE DIETA
+────────────────────────────────────────────────────────────────────────────────
+
+O aluno tem acesso a um Chatbot de orientação nutricional básica, integrado
+diretamente na plataforma. O objetivo é oferecer uma orientação genérica e
+educativa, sem substituir o papel de um nutricionista.
+
+  O Chatbot é capaz de:
+    - Sugerir distribuição de macronutrientes (proteínas, carboidratos,
+      gorduras) com base no peso e objetivo do aluno
+    - Recomendar alimentos ricos em proteína para ganho de massa
+    - Orientar sobre horários de refeições em relação ao treino
+    - Responder dúvidas básicas sobre nutrição esportiva
+    - Sugerir cálculo de calorias diárias (fórmula TDEE)
+
+  O Chatbot NÃO faz:
+    - Prescrição de suplementos com dosagens específicas
+    - Dietas para condições médicas (diabetes, hipertensão, etc.)
+    - Substituição de consulta com nutricionista
+
+  AVISO OBRIGATÓRIO (exibido em todas as interações):
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  ⚠️  As orientações fornecidas por este chatbot são de caráter          │
+  │  informativo e genérico. Consulte um nutricionista ou profissional      │
+  │  de saúde habilitado antes de fazer alterações significativas na        │
+  │  sua alimentação.                                                       │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+────────────────────────────────────────────────────────────────────────────────
+3.4 MÓDULO DE GESTÃO MULTI-TENANT (ACADEMIAS)
+────────────────────────────────────────────────────────────────────────────────
+
+A plataforma é multi-tenant, ou seja, cada academia opera de forma
+independente dentro do sistema.
+
+  Perfis de usuário:
+    - Admin SaaS: Gerencia todas as academias cadastradas na plataforma.
+      Pode criar tenants e promover donos de academia.
+    - Owner (Dono da academia): Gerencia os alunos da sua academia,
+      visualiza fichas geradas e acompanha a evolução dos alunos.
+    - Student (Aluno): Insere medidas, recebe recomendações, acessa o
+      chatbot de dieta e registra cargas de treino.
+
+────────────────────────────────────────────────────────────────────────────────
+3.5 MÓDULO DE REGISTRO DE CARGAS
+────────────────────────────────────────────────────────────────────────────────
+
+Após receber a ficha de treino, o aluno pode registrar as cargas utilizadas
+em cada exercício durante o treino:
+
+  - Peso utilizado (kg)
+  - Número de repetições realizadas
+  - Data do registro
+  - Visualização da última carga registrada (referência para progressão)
+
+Esse histórico permite ao aluno acompanhar sua progressão de cargas ao
+longo do tempo, sendo um dado valioso também para o modelo de ML em versões
+futuras.
+
+
+════════════════════════════════════════════════════════════════════════════════
+4. ARQUITETURA TÉCNICA
+════════════════════════════════════════════════════════════════════════════════
+
+O sistema é dividido em três camadas:
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │                          FRONTEND (React + Vite)                        │
+  │                                                                         │
+  │   Interface do aluno, owner e admin. Responsável por:                   │
+  │   - Formulário de medidas corporais                                     │
+  │   - Exibição da ficha de treino gerada                                  │
+  │   - Interface do chatbot de dieta                                       │
+  │   - Registro de cargas e histórico                                      │
+  │   - Dashboard multi-tenant                                              │
+  └───────────────────────────┬─────────────────────────────────────────────┘
+                              │ HTTP / REST API
+  ┌───────────────────────────▼─────────────────────────────────────────────┐
+  │                      BACKEND (Python / FastAPI)                         │
+  │                                                                         │
+  │   - Endpoint de predição ML (recebe medidas → retorna recomendação)     │
+  │   - Integração com API de LLM (Claude/OpenAI) para o chatbot            │
+  │   - Autenticação e validação de dados                                   │
+  │   - Gerenciamento de fichas de treino                                   │
+  └───────────────────────────┬─────────────────────────────────────────────┘
+                              │
+  ┌───────────────────────────▼─────────────────────────────────────────────┐
+  │                  DADOS E INTELIGÊNCIA ARTIFICIAL                        │
+  │                                                                         │
+  │   - Modelo ML treinado (scikit-learn / XGBoost / exportado em ONNX)     │
+  │   - Base de dados: Firebase Firestore (medidas, fichas, cargas)         │
+  │   - API de LLM para geração de respostas do chatbot                     │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  Stack tecnológica:
+    Frontend:   React 18, Vite, Tailwind CSS, Lucide Icons
+    Backend:    Python, FastAPI
+    ML:         scikit-learn / XGBoost / Random Forest (a definir por dados)
+    Banco:      Firebase Firestore
+    Chatbot:    API de LLM (Claude da Anthropic ou OpenAI GPT)
+    Auth:       Firebase Authentication
+
+
+════════════════════════════════════════════════════════════════════════════════
+5. FLUXO DO USUÁRIO (JORNADA PRINCIPAL)
+════════════════════════════════════════════════════════════════════════════════
+
+  1. Aluno cria conta na plataforma (ou é cadastrado pelo owner da academia)
+  2. Aluno acessa a seção "Minhas Medidas" e preenche os dados corporais
+  3. O sistema envia as medidas para o modelo de ML no backend
+  4. O modelo retorna o grupo muscular prioritário + ficha de treino gerada
+  5. A ficha é exibida para o aluno com exercícios, séries e repetições
+  6. Aluno realiza o treino e registra as cargas utilizadas
+  7. Aluno acessa o Chatbot de Dieta para tirar dúvidas nutricionais
+  8. Aluno insere novas medidas periodicamente (ex: a cada 4 semanas)
+  9. O sistema compara a evolução e pode atualizar a recomendação de treino
+
+
+════════════════════════════════════════════════════════════════════════════════
+6. ESCOPO DO MVP — O QUE ESTÁ DENTRO E O QUE FICA PARA DEPOIS
+════════════════════════════════════════════════════════════════════════════════
+
+  DENTRO DO MVP:
+    ✓ Cadastro e autenticação de usuários (admin, owner, aluno)
+    ✓ Multi-tenant (suporte a múltiplas academias)
+    ✓ Formulário de medidas corporais
+    ✓ Modelo de ML para recomendação de grupo muscular e geração de ficha
+    ✓ Chatbot de orientação nutricional genérica com disclaimer
+    ✓ Registro de cargas por exercício
+    ✓ Visualização da última carga (referência de progressão)
+    ✓ Dashboard do aluno, owner e admin
+
+  FORA DO MVP (próximas versões):
+    ✗ Gráficos de evolução de cargas ao longo do tempo
+    ✗ Análise de composição corporal avançada (DEXA, etc.)
+    ✗ App mobile (iOS/Android) — MVP é web responsivo
+    ✗ Integração com wearables (smartwatch, balança inteligente)
+    ✗ Planos de treino periodizados automáticos (meso/microciclos)
+    ✗ Sistema de pagamento / assinatura para academias
+    ✗ Relatórios exportáveis em PDF
+    ✗ Notificações push de lembrete de treino
+
+
+════════════════════════════════════════════════════════════════════════════════
+7. MODELO DE MACHINE LEARNING — DETALHES
+════════════════════════════════════════════════════════════════════════════════
+
+  Tipo de problema: Classificação + Geração de conteúdo estruturado
+
+  Etapas de desenvolvimento:
+    1. Recebimento e análise exploratória da base de dados fornecida
+    2. Pré-processamento: tratamento de valores ausentes, normalização
+       de medidas, codificação de variáveis categóricas
+    3. Feature Engineering: criação de índices relevantes (ex: relação
+       cintura/quadril, índice de massa magra estimada, proporção
+       braço/peito, etc.)
+    4. Treinamento e seleção do melhor algoritmo (candidatos: Random
+       Forest, XGBoost, SVM, Redes Neurais simples)
+    5. Avaliação: acurácia, F1-score, validação cruzada
+    6. Export do modelo treinado (formato .pkl ou .onnx)
+    7. Integração via endpoint FastAPI
+
+  Saída do modelo:
+    - Grupo muscular prioritário (ex: "Posterior", "Dorsais", "Ombros")
+    - Confiança da predição (%)
+    - Perfil físico classificado (ex: "Ectomorfo com déficit de posterior")
+
+  Geração da ficha de treino:
+    Com base na saída do modelo, o backend consulta um banco de fichas
+    pré-definidas por grupo muscular e objetivo, e monta a ficha
+    personalizada para o aluno.
+
+
+════════════════════════════════════════════════════════════════════════════════
+8. DIFERENCIAIS COMPETITIVOS
+════════════════════════════════════════════════════════════════════════════════
+
+  1. Personalização real baseada em dados físicos — não é uma ficha
+     genérica copiada da internet.
+
+  2. Machine Learning com dados reais de praticantes — o modelo aprende
+     com perfis reais, não com regras manuais.
+
+  3. Chatbot de dieta integrado — elimina a necessidade de o aluno buscar
+     informações em fontes não confiáveis.
+
+  4. Plataforma multi-tenant — academias podem oferecer a ferramenta
+     como diferencial competitivo para seus alunos.
+
+  5. Interface simples e focada — sem complexidade desnecessária,
+     desenhada para quem já treina e quer evoluir.
+
+
+════════════════════════════════════════════════════════════════════════════════
+9. PRÓXIMOS PASSOS
+════════════════════════════════════════════════════════════════════════════════
+
+  Imediato:
+    → Receber e analisar a base de dados para treinamento do modelo ML
+    → Definir as features (variáveis) mais relevantes para o modelo
+    → Treinar, avaliar e exportar o modelo
+    → Desenvolver o backend FastAPI com endpoint de predição
+    → Integrar o frontend React com o backend
+    → Implementar o Chatbot de dieta via API de LLM
+    → Testes de usabilidade com usuários reais
+
+  Curto prazo (pós-MVP):
+    → Coletar feedback dos primeiros usuários
+    → Re-treinar o modelo com novos dados coletados pela plataforma
+    → Implementar gráficos de evolução de performance
+    → Avaliar viabilidade de app mobile
+
+
+════════════════════════════════════════════════════════════════════════════════
+10. RESUMO EXECUTIVO
+════════════════════════════════════════════════════════════════════════════════
+
+O FitSaaS é uma plataforma SaaS de monitoramento de performance para
+praticantes intermediários de musculação. O produto combina Machine Learning
+com uma interface simples para oferecer algo que o mercado ainda não entrega
+de forma acessível: fichas de treino verdadeiramente personalizadas com base
+no perfil físico real do aluno, sem precisar de um personal trainer presente.
+
+O chatbot de dieta complementa a experiência, oferecendo orientação
+nutricional básica de forma imediata e responsável.
+
+A plataforma é multi-tenant, permitindo que academias ofereçam essa
+tecnologia como serviço para seus alunos, criando um modelo de negócio
+escalável.
+
+O MVP foca nas funcionalidades essenciais para validar o produto com
+usuários reais e coletar dados para evoluir o modelo de ML continuamente.
+
+================================================================================
+                    FitSaaS — Transformando dados em performance.
+================================================================================
