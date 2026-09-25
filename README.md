@@ -27,13 +27,7 @@ O usuario pode criar uma conta pela tela inicial e registrar seus dados de trein
 
 ## Frontend
 
-No Windows, de dois cliques em:
-
-```text
-INICIAR_FRONTEND.bat
-```
-
-Ou pelo terminal:
+No Windows, ou pelo terminal:
 
 ```bash
 npm install
@@ -48,13 +42,7 @@ http://localhost:5173
 
 ## Backend
 
-No Windows, de dois cliques em:
-
-```text
-INICIAR_BACKEND.bat
-```
-
-Ou manualmente:
+No Windows,ou manualmente:
 
 ```bash
 cd backend
