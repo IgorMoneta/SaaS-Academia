@@ -26,6 +26,8 @@ function normalizeDb(db) {
           objetivo: item.objetivo || 'Hipertrofia',
           meta_semanal: Number(item.meta_semanal || item.frequencia || 4),
           altura: item.altura ? Number(item.altura) : null,
+          peso: item.peso ? Number(item.peso) : null,
+          idade: item.idade ? Number(item.idade) : null,
           criado_em: item.criado_em || item.created_at || new Date().toISOString().slice(0, 10),
         }))
     : [];

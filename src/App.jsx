@@ -119,6 +119,8 @@ export default function App() {
       objetivo: payload.objetivo,
       meta_semanal: Number(payload.meta_semanal),
       altura: payload.altura ? Number(payload.altura) : null,
+      peso: payload.peso ? Number(payload.peso) : null,
+      idade: payload.idade ? Number(payload.idade) : null,
       criado_em: today(),
     };
 
@@ -128,7 +130,7 @@ export default function App() {
     }));
     setCurrentUserId(user.id);
     setActiveTab('dashboard');
-    return { ok: true };
+    return { ok: true, userId: user.id };
   };
 
   const updateProfile = (payload) => {
@@ -234,8 +236,64 @@ export default function App() {
     }));
   };
 
+  const generatePlan = async ({ userId, diasSemana, objetivo, peso, altura, idade }) => {
+    try {
+      const response = await fetch(`${API_URL}/api/gerar-treino`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dias_semana: diasSemana, objetivo, peso, altura, idade }),
+      });
+      const data = await readResponseJson(response);
+      if (!response.ok || !data?.treinos?.length) return { ok: false };
+
+      const plans = data.treinos.map((treino) => ({
+        id: createId('plan'),
+        user_id: userId,
+        tipo: `Treino ${treino.dia}`,
+        nome: treino.nome,
+        created_at: today(),
+      }));
+
+      const generatedExercises = [];
+      data.treinos.forEach((treino, index) => {
+        treino.exercicios.forEach((exercise) => {
+          generatedExercises.push({
+            id: createId('exercise'),
+            plan_id: plans[index].id,
+            nome: exercise.nome,
+            grupo: exercise.grupo,
+            series: exercise.series,
+            reps: exercise.reps,
+            created_at: today(),
+          });
+        });
+      });
+
+      updateDb((current) => ({
+        ...current,
+        workout_plans: [...current.workout_plans, ...plans],
+        exercises: [...current.exercises, ...generatedExercises],
+      }));
+      return { ok: true };
+    } catch {
+      return { ok: false };
+    }
+  };
+
+  const generatePlanForUser = (user) => {
+    const latest = userData.measurements.at(-1);
+    return generatePlan({
+      userId: user.id,
+      diasSemana: user.meta_semanal || 4,
+      objetivo: user.objetivo,
+      peso: user.peso ?? latest?.peso ?? null,
+      altura: user.altura ?? null,
+      idade: user.idade ?? null,
+    });
+  };
+
   if (!currentUser) {
-    return <AuthScreen onLogin={login} onCreateAccount={createAccount} />;
+    return <AuthScreen onLogin={login} onCreateAccount={createAccount} onGeneratePlan={generatePlan} />;
   }
 
   return (
@@ -293,6 +351,7 @@ export default function App() {
         {activeTab === 'treinos' && (
           <WorkoutsView
             userData={userData}
+            onGeneratePlan={() => generatePlanForUser(currentUser)}
             onAddWorkoutPlan={addWorkoutPlan}
             onDeleteWorkoutPlan={deleteWorkoutPlan}
             onAddExercise={addExercise}
@@ -313,7 +372,7 @@ export default function App() {
   );
 }
 
-function AuthScreen({ onLogin, onCreateAccount }) {
+function AuthScreen({ onLogin, onCreateAccount, onGeneratePlan }) {
   const [mode, setMode] = useState('login');
   const [loginForm, setLoginForm] = useState({ email: '', senha: '' });
   const [signupForm, setSignupForm] = useState({
@@ -323,8 +382,11 @@ function AuthScreen({ onLogin, onCreateAccount }) {
     objetivo: 'Hipertrofia',
     meta_semanal: '4',
     altura: '',
+    peso: '',
+    idade: '',
   });
   const [error, setError] = useState('');
+  const [generating, setGenerating] = useState(false);
 
   const submitLogin = (event) => {
     event.preventDefault();
@@ -332,7 +394,7 @@ function AuthScreen({ onLogin, onCreateAccount }) {
     if (!onLogin(loginForm)) setError('Email ou senha invalidos.');
   };
 
-  const submitSignup = (event) => {
+  const submitSignup = async (event) => {
     event.preventDefault();
     setError('');
     if (!signupForm.nome.trim() || !signupForm.email.trim() || signupForm.senha.length < 3) {
@@ -340,7 +402,20 @@ function AuthScreen({ onLogin, onCreateAccount }) {
       return;
     }
     const result = onCreateAccount(signupForm);
-    if (!result.ok) setError(result.error);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setGenerating(true);
+    await onGeneratePlan({
+      userId: result.userId,
+      diasSemana: Number(signupForm.meta_semanal),
+      objetivo: signupForm.objetivo,
+      peso: signupForm.peso || null,
+      altura: signupForm.altura || null,
+      idade: signupForm.idade || null,
+    });
+    setGenerating(false);
   };
 
   return (
@@ -419,6 +494,21 @@ function AuthScreen({ onLogin, onCreateAccount }) {
                 suffix="dias"
                 onChange={(value) => setSignupForm((current) => ({ ...current, meta_semanal: value }))}
               />
+              <Field
+                label="Peso (kg)"
+                type="number"
+                step="0.1"
+                value={signupForm.peso}
+                onChange={(value) => setSignupForm((current) => ({ ...current, peso: value }))}
+              />
+              <Field
+                label="Idade"
+                type="number"
+                min="10"
+                max="100"
+                value={signupForm.idade}
+                onChange={(value) => setSignupForm((current) => ({ ...current, idade: value }))}
+              />
               <div className="col-span-2">
                 <Field
                   label="Altura opcional (cm)"
@@ -433,9 +523,9 @@ function AuthScreen({ onLogin, onCreateAccount }) {
 
           {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>}
 
-          <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-3 font-medium inline-flex items-center justify-center gap-2">
+          <button disabled={generating} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-3 font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60">
             {mode === 'login' ? <LogIn size={17} /> : <Plus size={17} />}
-            {mode === 'login' ? 'Entrar' : 'Criar conta'}
+            {mode === 'login' ? 'Entrar' : generating ? 'Criando conta e gerando treino...' : 'Criar conta'}
           </button>
         </form>
       </div>
@@ -445,6 +535,7 @@ function AuthScreen({ onLogin, onCreateAccount }) {
 
 function Dashboard({ user, userData, analyticsState, onOpenInsights }) {
   const { analytics, error, loading, reload } = analyticsState;
+  const { alertas } = useProgression(user, userData);
   const latestMeasurement = userData.measurements.at(-1);
   const best = analytics?.treino?.exercicios?.[0];
 
@@ -466,6 +557,22 @@ function Dashboard({ user, userData, analyticsState, onOpenInsights }) {
       </div>
 
       <BackendBanner error={error} loading={loading} onReload={reload} />
+
+      {alertas.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle size={18} className="text-amber-600" />
+            <h2 className="font-semibold text-amber-900">Progressao de carga</h2>
+          </div>
+          <div className="space-y-2">
+            {alertas.map((alerta) => (
+              <p key={alerta.exercise_id} className="text-sm text-amber-900 bg-white border border-amber-100 rounded-lg p-3">
+                {alerta.alerta}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         <MetricCard label="Meta semanal" value={`${user.meta_semanal} treinos`} tone="emerald" />
@@ -505,10 +612,17 @@ function Dashboard({ user, userData, analyticsState, onOpenInsights }) {
   );
 }
 
-function WorkoutsView({ userData, onAddWorkoutPlan, onDeleteWorkoutPlan, onAddExercise, onDeleteExercise, onAddLoadLog }) {
+function WorkoutsView({ userData, onGeneratePlan, onAddWorkoutPlan, onDeleteWorkoutPlan, onAddExercise, onDeleteExercise, onAddLoadLog }) {
   const [activePlanId, setActivePlanId] = useState(userData.plans[0]?.id || '');
   const [planForm, setPlanForm] = useState({ tipo: '', nome: '' });
   const [exerciseForm, setExerciseForm] = useState({ nome: '', grupo: '', series: '3', reps: '8-12' });
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    await onGeneratePlan();
+    setGenerating(false);
+  };
 
   useEffect(() => {
     if (!userData.plans.some((plan) => plan.id === activePlanId)) {
@@ -536,6 +650,22 @@ function WorkoutsView({ userData, onAddWorkoutPlan, onDeleteWorkoutPlan, onAddEx
   return (
     <section className="space-y-5">
       <ViewHeader title="Treinos" subtitle="Crie suas fichas e registre carga por exercicio." icon={Dumbbell} />
+
+      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-emerald-900">Gerar treino automatico</p>
+          <p className="text-xs text-emerald-700">Monta uma ficha com base no seu objetivo, frequencia semanal, peso e altura.</p>
+        </div>
+        <button
+          type="button"
+          disabled={generating}
+          onClick={handleGenerate}
+          className="h-10 px-4 rounded-lg bg-emerald-600 text-white text-sm font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60"
+        >
+          <Sparkles size={16} />
+          {generating ? 'Gerando...' : 'Gerar treino'}
+        </button>
+      </div>
 
       <form onSubmit={submitPlan} className="bg-white border border-slate-200 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-[120px_1fr_auto] gap-3">
         <Field label="Tipo" placeholder="A" value={planForm.tipo} onChange={(value) => setPlanForm((current) => ({ ...current, tipo: value }))} />
@@ -1056,6 +1186,43 @@ function useAnalytics(user, userData) {
     loading,
     reload: () => setNonce((value) => value + 1),
   };
+}
+
+function useProgression(user, userData) {
+  const [alertas, setAlertas] = useState([]);
+
+  const payload = useMemo(
+    () => (user ? { load_logs: userData.logs, exercises: userData.exercises } : null),
+    [user, userData]
+  );
+
+  useEffect(() => {
+    if (!payload) return;
+    let cancelled = false;
+
+    fetch(`${API_URL}/api/progressao`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(async (response) => {
+        const data = await readResponseJson(response);
+        if (!response.ok) throw new Error(data?.detail || 'Backend indisponivel.');
+        return data;
+      })
+      .then((data) => {
+        if (!cancelled) setAlertas(data?.alertas || []);
+      })
+      .catch(() => {
+        if (!cancelled) setAlertas([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [payload]);
+
+  return { alertas };
 }
 
 function ViewHeader({ title, subtitle, icon: Icon, action }) {

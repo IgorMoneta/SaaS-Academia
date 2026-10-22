@@ -97,6 +97,8 @@ def _normalizar_objetivo(objetivo: str | None) -> str:
         "condicionamento": "condicionamento",
         "saude": "condicionamento",
         "saúde": "condicionamento",
+        "manutencao": "condicionamento",
+        "manutenção": "condicionamento",
     }
     return aliases.get(key, "hipertrofia")
 
