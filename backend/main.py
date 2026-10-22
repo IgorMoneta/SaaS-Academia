@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import agent, analytics, state
+from routes import agent, analytics, generator, state
 
 
 load_dotenv()
@@ -28,6 +28,7 @@ app.add_middleware(
 app.include_router(analytics.router, prefix="/api")
 app.include_router(agent.router, prefix="/api")
 app.include_router(state.router, prefix="/api")
+app.include_router(generator.router, prefix="/api")
 
 
 @app.get("/")
