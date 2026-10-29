@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,14 +15,24 @@ app = FastAPI(
     description="Analytics de treino + integração com Hermes Agent.",
 )
 
+# Origens permitidas para chamadas cross-origin do frontend.
+# Sobrescreva com a variável CORS_ORIGINS (lista separada por vírgula).
+CORS_ORIGINS = [
+    o.strip()
+    for o in os.getenv(
+        "CORS_ORIGINS",
+        (
+            "http://localhost:5173,http://localhost:5174,"
+            "http://127.0.0.1:5173,http://127.0.0.1:5174,"
+            "https://fitsaas-frontend.onrender.com"
+        ),
+    ).split(",")
+    if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-    ],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
