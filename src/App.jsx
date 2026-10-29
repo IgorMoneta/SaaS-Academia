@@ -21,7 +21,14 @@ import {
 
 import { createId, loadDb, saveDb } from './data/store.js';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = (() => {
+  // Em produção no Render, deriva a URL do backend a partir do hostname do
+  // frontend (funciona mesmo com sufixo aleatório, ex.: -x05c).
+  if (typeof window !== 'undefined' && /fitsaas-frontend/.test(window.location.hostname)) {
+    return `https://${window.location.hostname.replace('fitsaas-frontend', 'fitsaas-backend')}`;
+  }
+  return import.meta.env.VITE_API_URL || '';
+})();
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: Activity },

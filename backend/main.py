@@ -33,6 +33,10 @@ CORS_ORIGINS = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
+    allow_origin_regex=os.getenv(
+        "CORS_ORIGIN_REGEX",
+        r"https://fitsaas-frontend.*\.onrender\.com",
+    ),
     allow_methods=["*"],
     allow_headers=["*"],
 )
