@@ -14,6 +14,8 @@ services:
     branch: main
     autoDeploy: true
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
       - key: CORS_ORIGINS
         value: https://fitsaas-frontend.onrender.com,http://localhost:5173,http://127.0.0.1:5173
 
