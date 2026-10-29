@@ -6,12 +6,15 @@ import httpx
 
 class HermesClient:
     def __init__(self) -> None:
+        # Em produção sem .env (ex.: Render), cai no DeepSeek (API compatível
+        # com OpenAI). Localmente, backend/.env sobrescreve os três valores
+        # (Hermes local em 127.0.0.1:8642).
         self.base_url = os.getenv(
             "HERMES_BASE_URL",
-            "http://127.0.0.1:8642",
+            "https://api.deepseek.com",
         ).rstrip("/")
         self.api_key = os.getenv("HERMES_API_KEY", "")
-        self.model = os.getenv("HERMES_MODEL", "hermes-agent")
+        self.model = os.getenv("HERMES_MODEL", "deepseek-flash")
         self.timeout = float(
             os.getenv("HERMES_TIMEOUT_SECONDS", "90")
         )
